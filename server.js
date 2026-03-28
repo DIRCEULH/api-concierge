@@ -147,6 +147,25 @@ app.post("/login", (req, res) => {
 
 });
 
+// Rota para buscar todos os visitantes
+app.get("/visitantes", (req, res) => {
+  const sql = "SELECT   id, cpf_cnpj, nome, empresa, DATE_FORMAT(data_entrada, '%d/%m/%Y %H:%i') as data_entrada, DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida, placa, destino,  atendente, obs,outros FROM visitors"; // ou 'visitantes', conforme seu banco
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar visitantes:", err);
+      return res.status(500).json({ message: "Erro no servidor" });
+    }
+
+    res.json(result); // envia todos os visitantes
+  });
+});
+
+
+
+
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
 });
+
+
