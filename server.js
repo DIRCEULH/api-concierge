@@ -46,15 +46,12 @@ function formatToMySQLDateTime(dataBR) {
 // cadastro
 app.post("/register", (req, res) => {
 
-  const { email, password } = req.body;
+  const {user, email, password } = req.body;
 
   const query = "SELECT * FROM users WHERE email = ? ";
 
-  db.query(query, [email, password], (err, result) => {
+  db.query(query, [ email ], (err, result) => {
 
-    if (err) {
-      return res.status(500).json({ message: "Erro no servidor" });
-    }
 
     if (result.length > 0) {
 
@@ -62,9 +59,9 @@ app.post("/register", (req, res) => {
 
     } else {
 
-      const sql = "INSERT INTO users (email, password) VALUES (?, ?)";
+      const sql = "INSERT INTO users (user, email, password) VALUES (?, ?, ?)";
 
-      db.query(sql, [email, password], (err, result) => {
+      db.query(sql, [user, email, password], (err, result) => {
 
         if (err) {
           return res.status(500).json({ message: "Erro ao cadastrar" });
@@ -130,18 +127,18 @@ app.post("/visitors", (req, res) => {
 // login
 app.post("/login", (req, res) => {
 
-  const { email, password } = req.body;
+  const { user, email, password } = req.body;
 
-  const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+  const sql = "SELECT * FROM users WHERE user = ? and email = ? AND password = ?";
 
-  db.query(sql, [email, password], (err, result) => {
+  db.query(sql, [user, email, password], (err, result) => {
 
     if (err) {
       return res.status(500).json({ message: "Erro no servidor" });
     }
 
     if (result.length > 0) {
-      res.json({ message: "Login realizado com sucesso" });
+      res.json({ result});
     } else {
       res.status(401).json({ message: "Email ou senha inválidos" });
     }
