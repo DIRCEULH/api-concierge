@@ -135,7 +135,7 @@ app.post("/visitors", (req, res) => {
       if (err) {
         console.error(err);
         console.log('BODY COMPLETO:', req.body);
-        return res.status(500).json({ message: "Erro ao cadastrar visitante" });
+        return res.status(500).json({ message: "Erro ao cadastrar visitante!" });
       }
 
       res.json({ message: "Visitante cadastrado com sucesso!" });
@@ -171,13 +171,13 @@ app.post("/login", (req, res) => {
 
 // Rota para buscar todos os visitantes
 app.get("/visitantes", (req, res) => {
-  const { data_atual } = req.query; // recebe ?data_atual=2026-03-28
+  const { data_atual, local } = req.query; // recebe ?data_atual=2026-03-28
 
   let sql = `
     SELECT id, cpf_cnpj, nome, empresa,
            DATE_FORMAT(data_entrada, '%d/%m/%Y %H:%i') as data_entrada,
            DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida,
-           placa, destino, atendente, obs, outros
+           placa, destino, atendente, obs, local
     FROM visitors
   `;
 
@@ -188,7 +188,12 @@ app.get("/visitantes", (req, res) => {
     sql += ` WHERE data_registro = ?`;
   }
 
-  db.query(sql, data_atual ? [data_atual] : [], (err, result) => {
+  if (local) {
+    // Espera-se data_atual no formato YYYY-MM-DD
+    sql += ` AND local = ?`;
+  }
+
+  db.query(sql, data_atual ? [data_atual, local] : [], (err, result) => {
     if (err) {
       console.error("Erro ao buscar visitantes:", err);
       return res.status(500).json({ message: "Erro no servidor" });
