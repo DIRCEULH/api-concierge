@@ -112,7 +112,8 @@ app.post("/visitors", (req, res) => {
     placa,
     destino,
     atendente,
-    obs
+    obs,
+    local
   } = req.body;
 
   const dataEntradaMySQL = formatToMySQLDateTime(data_entrada);
@@ -122,13 +123,13 @@ app.post("/visitors", (req, res) => {
 
   const sql = `
     INSERT INTO visitors 
-    (cpf_cnpj, nome, empresa, data_entrada, data_saida, placa, destino, atendente, obs)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (cpf_cnpj, nome, empresa, data_entrada, data_saida, placa, destino, atendente, obs, local)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [cpf_cnpj, nome, empresa, dataEntradaMySQL, dataSaidaMySQL, placa, destino, atendente, obs],
+    [cpf_cnpj, nome, empresa, dataEntradaMySQL, dataSaidaMySQL, placa, destino, atendente, obs, local],
     (err, result) => {
 
       if (err) {
