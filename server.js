@@ -43,14 +43,35 @@ function formatToMySQLDateTime(dataBR) {
 }
 
 
+function formatToMySQLDate(dataBR) {
+  if (!dataBR) return null;
+
+  try {
+    const [datePart, timePart] = dataBR.split(' ');
+
+    if (!datePart || !timePart) return null;
+
+    const [day, month, year] = datePart.split('/');
+    const [hour, minute] = timePart.split(':');
+
+    if (!day || !month || !year || !hour || !minute) return null;
+
+    return `${year}-${month}-${day}`;
+  } catch (e) {
+    console.error('Erro ao converter data:', dataBR);
+    return null;
+  }
+}
+
+
 // cadastro
 app.post("/register", (req, res) => {
 
-  const {user, email, password } = req.body;
+  const { user, email, password } = req.body;
 
   const query = "SELECT * FROM users WHERE email = ? ";
 
-  db.query(query, [ email ], (err, result) => {
+  db.query(query, [email], (err, result) => {
 
 
     if (result.length > 0) {
@@ -94,10 +115,10 @@ app.post("/visitors", (req, res) => {
     obs
   } = req.body;
 
-    const dataEntradaMySQL = formatToMySQLDateTime(data_entrada);
-    const dataSaidaMySQL = formatToMySQLDateTime(data_saida);
+  const dataEntradaMySQL = formatToMySQLDateTime(data_entrada);
+  const dataSaidaMySQL = formatToMySQLDateTime(data_saida);
 
-   // res.json({ message: dataEntradaMySQL + dataEntradaMySQL});
+  // res.json({ message: dataEntradaMySQL + dataEntradaMySQL});
 
   const sql = `
     INSERT INTO visitors 
@@ -115,8 +136,8 @@ app.post("/visitors", (req, res) => {
         console.log('BODY COMPLETO:', req.body);
         return res.status(500).json({ message: "Erro ao cadastrar visitante" });
       }
-   
-     res.json({ message: "Visitante cadastrado com sucesso!"});
+
+      res.json({ message: "Visitante cadastrado com sucesso!" });
     }
   );
 });
@@ -138,7 +159,7 @@ app.post("/login", (req, res) => {
     }
 
     if (result.length > 0) {
-      res.json({ result});
+      res.json({ result });
     } else {
       res.status(401).json({ message: "Email ou senha inválidos" });
     }
@@ -149,19 +170,80 @@ app.post("/login", (req, res) => {
 
 // Rota para buscar todos os visitantes
 app.get("/visitantes", (req, res) => {
-  const sql = "SELECT   id, cpf_cnpj, nome, empresa, DATE_FORMAT(data_entrada, '%d/%m/%Y %H:%i') as data_entrada, DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida, placa, destino,  atendente, obs,outros FROM visitors"; // ou 'visitantes', conforme seu banco
+  const { data_atual } = req.query; // recebe ?data_atual=2026-03-28
 
-  db.query(sql, (err, result) => {
+  let sql = `
+    SELECT id, cpf_cnpj, nome, empresa,
+           DATE_FORMAT(data_entrada, '%d/%m/%Y %H:%i') as data_entrada,
+           DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida,
+           placa, destino, atendente, obs, outros
+    FROM visitors
+  `;
+
+
+  // Se passar data_atual, filtra pelo dia
+  if (data_atual) {
+    // Espera-se data_atual no formato YYYY-MM-DD
+    sql += ` WHERE data_registro = ?`;
+  }
+
+  db.query(sql, data_atual ? [data_atual] : [], (err, result) => {
     if (err) {
       console.error("Erro ao buscar visitantes:", err);
       return res.status(500).json({ message: "Erro no servidor" });
     }
 
-    res.json(result); // envia todos os visitantes
+    res.json(result);
   });
 });
 
 
+
+app.patch('/visitantes/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const { data_entrada, data_saida } = req.body;
+
+  const dataEntradaMySQL = formatToMySQLDateTime(data_entrada);
+  const dataSaidaMySQL = formatToMySQLDateTime(data_saida);
+
+  // Valida que pelo menos um campo veio
+  if (!data_entrada && !data_saida) {
+    return res.status(400).json({ message: "Nenhum campo para atualizar" });
+  }
+
+
+  // Monta query dinamicamente
+  const updates = [];
+  const values = [];
+
+  if (data_entrada !== undefined) {
+    updates.push('data_entrada = ?');
+    values.push(dataEntradaMySQL);
+  }
+
+  if (data_saida !== undefined) {
+    updates.push('data_saida = ?');
+    values.push(dataSaidaMySQL);
+  }
+
+  // Adiciona o id no final
+  values.push(id);
+
+  const sql = `UPDATE visitors SET ${updates.join(', ')} WHERE id = ?`;
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ message: "Erro no servidor" });
+    }
+
+    if (result.affectedRows > 0) {
+      res.json({ message: "Registro atualizado com sucesso" });
+    } else {
+      res.status(404).json({ message: "Registro não encontrado" });
+    }
+  });
+});
 
 
 app.listen(3000, () => {
