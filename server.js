@@ -203,7 +203,35 @@ app.get("/visitantes", (req, res) => {
   });
 });
 
+app.get("/buscaVisitantes", (req, res) => {
 
+  const sql = `
+    SELECT 
+      v.cpf_cnpj,
+      v.nome,
+      v.empresa,
+      v.placa
+    FROM visitors v
+    INNER JOIN (
+      SELECT cpf_cnpj, MAX(data_entrada) as ultima
+      FROM visitors
+      GROUP BY cpf_cnpj
+    ) x 
+    ON v.cpf_cnpj = x.cpf_cnpj 
+    AND v.data_entrada = x.ultima
+    ORDER BY v.data_entrada DESC
+  `;
+
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.error("Erro ao buscar visitantes:", err);
+      return res.status(500).json({ message: "Erro no servidor" });
+    }
+
+    res.json(result);
+  });
+});
 
 app.patch('/visitantes/:id', (req, res) => {
   const id = Number(req.params.id);
