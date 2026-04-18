@@ -149,11 +149,11 @@ app.post("/visitors", (req, res) => {
 // login
 app.post("/login", (req, res) => {
 
-  const { user, email, password } = req.body;
+  const {  email, password } = req.body;
 
-  const sql = "SELECT * FROM users WHERE user = ? and email = ? AND password = ?";
+  const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
-  db.query(sql, [user, email, password], (err, result) => {
+  db.query(sql, [email, password], (err, result) => {
 
     if (err) {
       return res.status(500).json({ message: "Erro no servidor" });
