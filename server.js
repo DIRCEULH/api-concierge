@@ -277,11 +277,9 @@ app.patch('/visitantes/:id', (req, res) => {
       res.status(404).json({ message: "Registro não encontrado" });
     }
   });
-});
+})
 
 
 app.listen(3000, () => {
   console.log("Servidor rodando na porta 3000");
-});
-
-
+})
