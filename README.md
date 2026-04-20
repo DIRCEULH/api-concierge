@@ -14,3 +14,4 @@ Express
 MySQL
 dotenv (variáveis de ambiente)
 Nodemon (ambiente de desenvolvimento)
+
