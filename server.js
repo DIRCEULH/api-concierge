@@ -7,10 +7,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 const db = mysql.createConnection({
   host: "localhost",
-  user: "dirceuh",
-  password: "aplic",
+  user: "",
+  password: "",
   database: "concierge"
 });
 
@@ -62,7 +63,6 @@ function formatToMySQLDate(dataBR) {
     return null;
   }
 }
-
 
 // cadastro
 app.post("/register", (req, res) => {
@@ -116,20 +116,37 @@ app.post("/visitors", (req, res) => {
     local
   } = req.body;
 
-  const dataEntradaMySQL = formatToMySQLDateTime(data_entrada);
-  const dataSaidaMySQL = formatToMySQLDateTime(data_saida);
+  // 🔥 validação de datas
+  const dataEntradaMySQL =
+    data_entrada && data_entrada !== "" && data_entrada !== "00/00/0000"
+      ? formatToMySQLDateTime(data_entrada)
+      : null;
 
-  // res.json({ message: dataEntradaMySQL + dataEntradaMySQL});
+  const dataSaidaMySQL =
+    data_saida && data_saida !== "" && data_saida !== "00/00/0000"
+      ? formatToMySQLDateTime(data_saida)
+      : null;
 
   const sql = `
-    INSERT INTO visitors 
+    INSERT INTO visitors
     (cpf_cnpj, nome, empresa, data_entrada, data_saida, placa, destino, atendente, obs, local)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [cpf_cnpj, nome, empresa, dataEntradaMySQL, dataSaidaMySQL, placa, destino, atendente, obs, local],
+    [
+      cpf_cnpj,
+      nome,
+      empresa,
+      dataEntradaMySQL,
+      dataSaidaMySQL,
+      placa,
+      destino,
+      atendente,
+      obs,
+      local
+    ],
     (err, result) => {
 
       if (err) {
@@ -138,13 +155,10 @@ app.post("/visitors", (req, res) => {
         return res.status(500).json({ message: "Erro ao cadastrar visitante!" });
       }
 
-      res.json({ message: "Visitante cadastrado com sucesso!" });
+      return res.json({ message: "Visitante cadastrado com sucesso!" });
     }
   );
 });
-
-
-
 
 // login
 app.post("/login", (req, res) => {
@@ -171,7 +185,7 @@ app.post("/login", (req, res) => {
 
 // Rota para buscar todos os visitantes
 app.get("/visitantes", (req, res) => {
-  const { data_atual, local } = req.query; // recebe ?data_atual=2026-03-28
+  const { data_atual, local } = req.query;
 
   let sql = `
     SELECT id, cpf_cnpj, nome, empresa,
@@ -179,21 +193,24 @@ app.get("/visitantes", (req, res) => {
            DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida,
            placa, destino, atendente, obs, local
     FROM visitors
+    WHERE 1=1
   `;
 
+  let params = [];
 
-  // Se passar data_atual, filtra pelo dia
+  // filtra por data ignorando hora
   if (data_atual) {
-    // Espera-se data_atual no formato YYYY-MM-DD
-    sql += ` WHERE data_registro = ?`;
+    sql += ` AND DATE(data_registro) = ?`;
+    params.push(data_atual);
   }
 
+  // filtra por local
   if (local) {
-    // Espera-se data_atual no formato YYYY-MM-DD
     sql += ` AND local = ?`;
+    params.push(local);
   }
 
-  db.query(sql, data_atual ? [data_atual, local] : [], (err, result) => {
+  db.query(sql, params, (err, result) => {
     if (err) {
       console.error("Erro ao buscar visitantes:", err);
       return res.status(500).json({ message: "Erro no servidor" });
@@ -206,7 +223,7 @@ app.get("/visitantes", (req, res) => {
 app.get("/buscaVisitantes", (req, res) => {
 
   const sql = `
-    SELECT 
+    SELECT
       v.cpf_cnpj,
       v.nome,
       v.empresa,
@@ -216,8 +233,8 @@ app.get("/buscaVisitantes", (req, res) => {
       SELECT cpf_cnpj, MAX(data_entrada) as ultima
       FROM visitors
       GROUP BY cpf_cnpj
-    ) x 
-    ON v.cpf_cnpj = x.cpf_cnpj 
+    ) x
+    ON v.cpf_cnpj = x.cpf_cnpj
     AND v.data_entrada = x.ultima
     ORDER BY v.data_entrada DESC
   `;
