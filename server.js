@@ -297,20 +297,26 @@ app.patch('/visitantes/:id', (req, res) => {
 })
 
 
-// GET /users?search=nome
 app.get('/users', async (req, res) => {
-  const { search } = req.query;
+  try {
+    const { search } = req.query;
 
-  let query = 'SELECT * FROM users';
+    let query = 'SELECT * FROM users';
+    let params = [];
 
-  if (search) {
-    query += ` WHERE user LIKE '%${search}%' OR email LIKE '%${search}%'`;
+    if (search) {
+      query += ' WHERE user LIKE ? OR email LIKE ?';
+      params.push(`%${search}%`, `%${search}%`);
+    }
+
+    const [rows] = await db.query(query, params);
+
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro no servidor' });
   }
-
-  const result = await db.query(query);
-  res.json(result.rows);
 });
-
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
