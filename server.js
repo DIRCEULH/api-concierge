@@ -297,6 +297,21 @@ app.patch('/visitantes/:id', (req, res) => {
 })
 
 
+// GET /users?search=nome
+app.get('/users', async (req, res) => {
+  const { search } = req.query;
+
+  let query = 'SELECT * FROM users';
+
+  if (search) {
+    query += ` WHERE name LIKE '%${search}%' OR email LIKE '%${search}%'`;
+  }
+
+  const result = await db.query(query);
+  res.json(result.rows);
+});
+
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
