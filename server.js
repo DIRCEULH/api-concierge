@@ -304,7 +304,7 @@ app.get('/users', async (req, res) => {
   let query = 'SELECT * FROM users';
 
   if (search) {
-    query += ` WHERE nome LIKE '%${search}%' OR email LIKE '%${search}%'`;
+    query += ` WHERE user LIKE '%${search}%' OR email LIKE '%${search}%'`;
   }
 
   const result = await db.query(query);
