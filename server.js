@@ -301,7 +301,7 @@ app.get('/users', (req, res) => {
   const { search } = req.query;
 
   let sql = `
-    SELECT *
+    SELECT id, name, email
     FROM users
   `;
 
