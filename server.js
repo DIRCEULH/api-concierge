@@ -297,25 +297,31 @@ app.patch('/visitantes/:id', (req, res) => {
 })
 
 
-app.get('/users', async (req, res) => {
-  try {
-    const { search } = req.query;
+app.get('/users', (req, res) => {
+  const { search } = req.query;
 
-    let query = 'SELECT * FROM users';
-    let params = [];
+  let sql = `
+    SELECT *
+    FROM users
+  `;
 
-    if (search) {
-      query += ' WHERE email LIKE ?';
-      params.push(`%${search}%`);
+  let params = [];
+
+  if (search) {
+    sql += `
+      WHERE \`user\` LIKE ? OR email LIKE ?
+    `;
+    params.push(`%${search}%`, `%${search}%`);
+  }
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar usuários:', err);
+      return res.status(500).json({ message: 'Erro no servidor' });
     }
 
-    const [rows] = await db.query(query, params);
-
-    res.json(rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erro no servidor' });
-  }
+    res.json(result);
+  });
 });
 
 app.listen(3000, "0.0.0.0", () => {
