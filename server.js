@@ -324,6 +324,53 @@ app.get('/users', (req, res) => {
   });
 });
 
+app.patch("/updateUsers", async (req, res) => {
+  try {
+    const { id, status, permissao } = req.query;
+
+    if (!id) {
+      return res.status(400).json({ message: "ID é obrigatório" });
+    }
+
+    // monta update dinâmico (só atualiza o que vier)
+    let fields = [];
+    let values = [];
+
+    if (status !== undefined) {
+      fields.push("status = ?");
+      values.push(status);
+    }
+
+    if (permissao !== undefined) {
+      fields.push("permissao = ?");
+      values.push(permissao);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({ message: "Nada para atualizar" });
+    }
+
+    values.push(id);
+
+    const sql = `
+      UPDATE users
+      SET ${fields.join(", ")}
+      WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, values);
+
+    return res.json({
+      message: "Usuário atualizado com sucesso",
+      affectedRows: result.affectedRows
+    });
+
+  } catch (error) {
+    console.error("Erro updateUsers:", error);
+    return res.status(500).json({ message: "Erro no servidor" });
+  }
+});
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
