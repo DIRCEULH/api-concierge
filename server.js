@@ -324,7 +324,7 @@ app.get('/users', (req, res) => {
   });
 });
 
-app.patch("/updateUsers", async (req, res) => {
+app.patch("/updateUsers", (req, res) => {
   try {
     const { id, status, permissao } = req.query;
 
@@ -332,7 +332,6 @@ app.patch("/updateUsers", async (req, res) => {
       return res.status(400).json({ message: "ID é obrigatório" });
     }
 
-    // monta update dinâmico (só atualiza o que vier)
     let fields = [];
     let values = [];
 
@@ -358,15 +357,20 @@ app.patch("/updateUsers", async (req, res) => {
       WHERE id = ?
     `;
 
-    const [result] = await db.query(sql, values);
+    db.query(sql, values, (err, result) => {
+      if (err) {
+        console.error("Erro SQL:", err);
+        return res.status(500).json({ message: "Erro no banco" });
+      }
 
-    return res.json({
-      message: "Usuário atualizado com sucesso",
-      affectedRows: result.affectedRows
+      return res.json({
+        message: "Usuário atualizado com sucesso",
+        affectedRows: result.affectedRows
+      });
     });
 
   } catch (error) {
-    console.error("Erro updateUsers:", error);
+    console.error("Erro geral:", error);
     return res.status(500).json({ message: "Erro no servidor" });
   }
 });
