@@ -113,7 +113,8 @@ app.post("/visitors", (req, res) => {
     destino,
     atendente,
     obs,
-    local
+    local,
+    codigo_tipo
   } = req.body;
 
   // 🔥 validação de datas
@@ -129,8 +130,8 @@ app.post("/visitors", (req, res) => {
 
   const sql = `
     INSERT INTO visitors
-    (cpf_cnpj, nome, empresa, data_entrada, data_saida, placa, destino, atendente, obs, local)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (cpf_cnpj, nome, empresa, data_entrada, data_saida, placa, destino, atendente, obs, local, tipo_visitante)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -145,7 +146,9 @@ app.post("/visitors", (req, res) => {
       destino,
       atendente,
       obs,
-      local
+      local,
+      codigo_tipo
+
     ],
     (err, result) => {
 
