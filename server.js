@@ -325,7 +325,7 @@ app.get('/users', (req, res) => {
 });
 
 // tipos de visitantes
-app.get('/tipos', (req, res) => {
+app.get('/visitor_type', (req, res) => {
   const sql = 'SELECT id,codigo_tipo,nome_tipo FROM visitor_type ORDER BY nome_tipo';
 
   db.query(sql, (err, result) => {
