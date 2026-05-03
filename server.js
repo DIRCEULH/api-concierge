@@ -191,10 +191,10 @@ app.get("/visitantes", (req, res) => {
   const { data_atual, local } = req.query;
 
   let sql = `
-    SELECT v.id, v.cpf_cnpj, concat(concat(v.nome, '-'),vt.nome_tipo) as nome, v.empresa,
+    SELECT v.id, v.cpf_cnpj, concat(concat(v.nome, ' - '),vt.nome_tipo) as nome, v.empresa,
            DATE_FORMAT(v.data_entrada, '%d/%m/%Y %H:%i') as data_entrada,
            DATE_FORMAT(v.data_saida, '%d/%m/%Y %H:%i') as data_saida,
-           v.placa, v.destino, v.atendente, v.obs, v.local
+           v.placa, v.destino, v.atendente, v.obs, v.local, vt.nome_tipo
     FROM visitors v
     INNER JOIN visitor_type vt on vt.codigo_tipo = v.tipo_visitante
     WHERE 1=1
