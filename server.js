@@ -191,12 +191,12 @@ app.get("/visitantes", (req, res) => {
   const { data_atual, local } = req.query;
 
   let sql = `
-    SELECT id, cpf_cnpj, concat(concat(nome, '-'),nome_tipo) as nome, empresa,
-           DATE_FORMAT(data_entrada, '%d/%m/%Y %H:%i') as data_entrada,
-           DATE_FORMAT(data_saida, '%d/%m/%Y %H:%i') as data_saida,
-           placa, destino, atendente, obs, local
-    FROM visitors
-    INNER JOIN visitor_type on codigo_tipo = tipo_visitante
+    SELECT v.id, v.cpf_cnpj, concat(concat(v.nome, '-'),vt.nome_tipo) as nome, v.empresa,
+           DATE_FORMAT(v.data_entrada, '%d/%m/%Y %H:%i') as data_entrada,
+           DATE_FORMAT(v.data_saida, '%d/%m/%Y %H:%i') as data_saida,
+           v.placa, v.destino, v.atendente, v.obs, v.local
+    FROM visitors v
+    INNER JOIN visitor_type vt on vt.codigo_tipo = v.tipo_visitante
     WHERE 1=1
   `;
 
@@ -204,13 +204,13 @@ app.get("/visitantes", (req, res) => {
 
   // filtra por data ignorando hora
   if (data_atual) {
-    sql += ` AND DATE(data_registro) = ?`;
+    sql += ` AND DATE(v.data_registro) = ?`;
     params.push(data_atual);
   }
 
   // filtra por local
   if (local) {
-    sql += ` AND local = ?`;
+    sql += ` AND v.local = ?`;
     params.push(local);
   }
 
