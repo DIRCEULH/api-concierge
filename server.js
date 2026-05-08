@@ -394,7 +394,7 @@ app.patch("/updateUsers", (req, res) => {
   }
 });
 
-const excluirVisitante = async (req, res) => {
+app.patch("/excluirVisitante", (req, res) => {
   try {
     const { id } = req.params;
 
@@ -420,7 +420,7 @@ const excluirVisitante = async (req, res) => {
       erro: "Erro interno",
     });
   }
-};
+})
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
