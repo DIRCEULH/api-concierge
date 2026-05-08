@@ -166,11 +166,11 @@ app.post("/visitors", (req, res) => {
 // login
 app.post("/login", (req, res) => {
 
-  const {  email, password } = req.body;
+  const { email, password } = req.body;
 
   const sql = "SELECT * FROM users WHERE email = ? AND password = ? AND STATUS = ? ";
 
-  db.query(sql, [email, password,'A'], (err, result) => {
+  db.query(sql, [email, password, 'A'], (err, result) => {
 
     if (err) {
       return res.status(500).json({ message: "Erro no servidor" });
@@ -393,6 +393,34 @@ app.patch("/updateUsers", (req, res) => {
     return res.status(500).json({ message: "Erro no servidor" });
   }
 });
+
+const excluirVisitante = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const sql = "DELETE FROM visitors WHERE id = ?";
+
+    db.query(sql, [id], (err, result) => {
+      if (err) {
+        console.log(err);
+
+        return res.status(500).json({
+          erro: "Erro ao excluir visitante",
+        });
+      }
+
+      return res.status(200).json({
+        mensagem: "Visitante excluído com sucesso",
+      });
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      erro: "Erro interno",
+    });
+  }
+};
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
