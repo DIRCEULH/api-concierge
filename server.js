@@ -426,13 +426,30 @@ app.delete("/excluirVisitante/:id", (req, res) => {
 //Atualizar o visitante , somente admin
 app.put('/atualizarVisitante/:id', async (req, res) => {
   try {
+
     const { id } = req.params;
 
-    const {
+    let {
       data_entrada,
       data_saida,
       destino,
     } = req.body;
+
+    // 🔥 Converte BR -> MySQL
+    const formatarDataMysql = (data) => {
+
+      if (!data) return null;
+
+      // 09/05/2026 09:15
+      const [date, time] = data.split(' ');
+
+      const [dia, mes, ano] = date.split('/');
+
+      return `${ano}-${mes}-${dia} ${time}:00`;
+    };
+
+    data_entrada = formatarDataMysql(data_entrada);
+    data_saida = formatarDataMysql(data_saida);
 
     const sql = `
       UPDATE visitors
@@ -456,15 +473,16 @@ app.put('/atualizarVisitante/:id', async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(error);
 
     res.status(500).json({
       success: false,
       message: 'Erro ao atualizar visitante',
     });
-  }
-});
 
+  }
+})
 
 
 app.listen(3000, "0.0.0.0", () => {
