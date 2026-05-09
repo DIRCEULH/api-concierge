@@ -420,7 +420,53 @@ app.delete("/excluirVisitante/:id", (req, res) => {
       erro: "Erro interno",
     });
   }
+})
+
+
+//Atualizar o visitante , somente admin
+app.put('/atualizarVisitante/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      data_entrada,
+      data_saida,
+      destino,
+    } = req.body;
+
+    const sql = `
+      UPDATE visitors
+      SET
+        data_entrada = ?,
+        data_saida = ?,
+        destino = ?
+      WHERE id = ?
+    `;
+
+    await pool.query(sql, [
+      data_entrada,
+      data_saida,
+      destino,
+      id,
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Visitante atualizado com sucesso',
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao atualizar visitante',
+    });
+  }
 });
+
+
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
