@@ -424,66 +424,95 @@ app.delete("/excluirVisitante/:id", (req, res) => {
 
 
 //Atualizar o visitante , somente admin
-app.put('/atualizarVisitante/:id', async (req, res) => {
-  try {
+app.patch('/atualizarVisitante/:id', (req, res) => {
 
-    const { id } = req.params;
+  const id = Number(req.params.id);
 
-    let {
-      data_entrada,
-      data_saida,
-      destino,
-    } = req.body;
+  const {
+    data_entrada,
+    data_saida,
+    destino
+  } = req.body;
 
-    // 🔥 Converte BR -> MySQL
-    const formatarDataMysql = (data) => {
+  // 🔥 Converte datas para MySQL
+  const dataEntradaMySQL = data_entrada
+    ? formatToMySQLDateTime(data_entrada)
+    : null;
 
-      if (!data) return null;
+  const dataSaidaMySQL = data_saida
+    ? formatToMySQLDateTime(data_saida)
+    : null;
 
-      // 09/05/2026 09:15
-      const [date, time] = data.split(' ');
-
-      const [dia, mes, ano] = date.split('/');
-
-      return `${ano}-${mes}-${dia} ${time}:00`;
-    };
-
-    data_entrada = formatarDataMysql(data_entrada);
-    data_saida = formatarDataMysql(data_saida);
-
-    const sql = `
-      UPDATE visitors
-      SET
-        data_entrada = ?,
-        data_saida = ?,
-        destino = ?
-      WHERE id = ?
-    `;
-
-    await pool.query(sql, [
-      data_entrada,
-      data_saida,
-      destino,
-      id,
-    ]);
-
-    res.status(200).json({
-      success: true,
-      message: 'Visitante atualizado com sucesso',
+  // ✅ valida se veio algo
+  if (
+    data_entrada === undefined &&
+    data_saida === undefined &&
+    destino === undefined
+  ) {
+    return res.status(400).json({
+      message: 'Nenhum campo para atualizar'
     });
-
-  } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      message: 'Erro ao atualizar visitante',
-    });
-
   }
-})
 
+  // 🔥 monta update dinâmico
+  const updates = [];
+  const values = [];
+
+  if (data_entrada !== undefined) {
+    updates.push('data_entrada = ?');
+    values.push(dataEntradaMySQL);
+  }
+
+  if (data_saida !== undefined) {
+    updates.push('data_saida = ?');
+    values.push(dataSaidaMySQL);
+  }
+
+  if (destino !== undefined) {
+    updates.push('destino = ?');
+    values.push(destino);
+  }
+
+  // ✅ id no final
+  values.push(id);
+
+  const sql = `
+    UPDATE visitors
+    SET ${updates.join(', ')}
+    WHERE id = ?
+  `;
+
+  db.query(sql, values, (err, result) => {
+
+    if (err) {
+
+      console.error(err);
+
+      return res.status(500).json({
+        message: 'Erro no servidor'
+      });
+
+    }
+
+    if (result.affectedRows > 0) {
+
+      res.json({
+        success: true,
+        message: 'Visitante atualizado com sucesso'
+      });
+
+    } else {
+
+      res.status(404).json({
+        success: false,
+        message: 'Registro não encontrado'
+      });
+
+    }
+
+  });
+
+});
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
