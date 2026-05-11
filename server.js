@@ -520,6 +520,8 @@ app.get('/vehicles', async (req, res) => {
   try {
     const { cpf_cnpj } = req.query;
 
+    console.log('Dirceu', cpf_cnpj)
+
     if (!cpf_cnpj) {
       return res.json([]); // 👈 sempre array (não quebra React)
     }
