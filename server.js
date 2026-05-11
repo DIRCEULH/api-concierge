@@ -546,6 +546,59 @@ app.get('/vehicles', (req, res) => {
   });
 });
 
+// cadastro de veículo
+app.post("/register-vehicle", (req, res) => {
+
+  const { placa, modelo, marca, cpf_cnpj } = req.body;
+
+  const query = "SELECT * FROM vehicles WHERE placa = ?";
+
+  db.query(query, [placa], (err, result) => {
+
+    if (err) {
+      return res.status(500).json({
+        message: "Erro ao verificar veículo"
+      });
+    }
+
+    if (result.length > 0) {
+
+      res.json({
+        message: "Já existe um veículo com essa placa!"
+      });
+
+    } else {
+
+      const sql = `
+        INSERT INTO vehicles
+        (placa, modelo, marca, cpf_cnpj)
+        VALUES (?, ?, ?, ?)
+      `;
+
+      db.query(
+        sql,
+        [placa, modelo, marca, cpf_cnpj],
+        (err, result) => {
+
+          if (err) {
+            return res.status(500).json({
+              message: "Erro ao cadastrar veículo"
+            });
+          }
+
+          res.json({
+            message: "Veículo cadastrado com sucesso!"
+          });
+
+        }
+      );
+
+    }
+
+  });
+
+});
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
