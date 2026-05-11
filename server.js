@@ -514,6 +514,43 @@ app.patch('/atualizarVisitante/:id', (req, res) => {
 
 });
 
+
+// Veiculos cadastrados por visitante ou pessoa.
+app.get('/vehicles', async (req, res) => {
+  try {
+    const { cpf_cnpj } = req.query;
+
+    if (!cpf_cnpj) {
+      return res.status(400).json({
+        error: 'cpf_cnpj é obrigatório',
+      });
+    }
+
+    const [rows] = await pool.execute(
+      `
+      SELECT 
+        id,
+        placa,
+        modelo,
+        marca
+      FROM veiculos
+      WHERE cpf_cnpj = ?
+      ORDER BY placa
+      `,
+      [cpf_cnpj]
+    );
+
+    return res.json(rows);
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      error: 'Erro interno do servidor',
+    });
+  }
+});
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
