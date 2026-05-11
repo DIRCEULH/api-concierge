@@ -549,13 +549,23 @@ app.get('/vehicles', (req, res) => {
 // cadastro de veículo
 app.post("/register-vehicle", (req, res) => {
 
-  const { placa, modelo, marca, cpf_cnpj } = req.body;
+  const {
+    placa,
+    modelo,
+    marca,
+    cpf_cnpj,
+    cor,
+    tipo_veiculo
+  } = req.body;
 
   const query = "SELECT * FROM vehicles WHERE placa = ?";
 
   db.query(query, [placa], (err, result) => {
 
     if (err) {
+
+      console.log(err);
+
       return res.status(500).json({
         message: "Erro ao verificar veículo"
       });
@@ -571,18 +581,35 @@ app.post("/register-vehicle", (req, res) => {
 
       const sql = `
         INSERT INTO vehicles
-        (placa, modelo, marca, cpf_cnpj)
-        VALUES (?, ?, ?, ?)
+        (
+          placa,
+          modelo,
+          marca,
+          cpf_cnpj,
+          cor,
+          tipo_veiculo
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
       `;
 
       db.query(
         sql,
-        [placa, modelo, marca, cpf_cnpj],
+        [
+          placa,
+          modelo,
+          marca,
+          cpf_cnpj,
+          cor,
+          tipo_veiculo
+        ],
         (err, result) => {
 
           if (err) {
+
+            console.log(err);
+
             return res.status(500).json({
-              message: "Erro ao cadastrar veículo"
+              message: "Erro ao cadastrar veículo."
             });
           }
 
