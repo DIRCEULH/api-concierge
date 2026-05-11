@@ -518,6 +518,8 @@ app.patch('/atualizarVisitante/:id', (req, res) => {
 // Veiculos cadastrados por visitante ou pessoa.
 app.get('/vehicles', async (req, res) => {
   try {
+
+      console.log('QUERY RECEBIDA:', req.query);
     const { cpf_cnpj } = req.query;
 
     if (!cpf_cnpj) {
