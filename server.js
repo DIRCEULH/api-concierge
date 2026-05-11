@@ -571,56 +571,55 @@ app.post("/register-vehicle", (req, res) => {
       });
     }
 
-    if (result.length > 0) {
+    // 🔥 verifica se encontrou veículo
+    if (result && result.length > 0) {
 
-      res.json({
+      return res.json({
         message: "Já existe um veículo com essa placa!"
       });
 
-    } else {
-
-      const sql = `
-        INSERT INTO vehicles
-        (
-          placa,
-          modelo,
-          marca,
-          cpf_cnpj,
-          cor,
-          tipo_veiculo
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-      `;
-
-      db.query(
-        sql,
-        [
-          placa,
-          modelo,
-          marca,
-          cpf_cnpj,
-          cor,
-          tipo_veiculo
-        ],
-        (err, result) => {
-
-          if (err) {
-
-            console.log(err);
-
-            return res.status(500).json({
-              message: "Erro ao cadastrar veículo."
-            });
-          }
-
-          res.json({
-            message: "Veículo cadastrado com sucesso!"
-          });
-
-        }
-      );
-
     }
+
+    const sql = `
+      INSERT INTO vehicles
+      (
+        placa,
+        modelo,
+        marca,
+        cpf_cnpj,
+        cor,
+        tipo_veiculo
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+      sql,
+      [
+        placa,
+        modelo,
+        marca,
+        cpf_cnpj,
+        cor,
+        tipo_veiculo
+      ],
+      (err, result) => {
+
+        if (err) {
+
+          console.log(err);
+
+          return res.status(500).json({
+            message: "Erro ao cadastrar veículo"
+          });
+        }
+
+        res.json({
+          message: "Veículo cadastrado com sucesso!"
+        });
+
+      }
+    );
 
   });
 
