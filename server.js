@@ -624,6 +624,52 @@ app.post("/register-vehicle", (req, res) => {
   });
 
 });
+//Graficos
+app.get("/dashboard", (req, res) => {
+
+  const sql = `
+    SELECT
+      COUNT(*) as total,
+
+      SUM(
+        CASE
+          WHEN data_saida IS NULL
+          OR data_saida = ''
+          THEN 1
+          ELSE 0
+        END
+      ) as dentro,
+
+      SUM(
+        CASE
+          WHEN data_saida IS NOT NULL
+          AND data_saida <> ''
+          THEN 1
+          ELSE 0
+        END
+      ) as sairam
+
+    FROM visitors
+
+    WHERE DATE(data_entrada) = CURDATE()
+  `;
+
+  db.query(sql, (err, result) => {
+
+    if (err) {
+
+      console.log(err);
+
+      return res.status(500).json({
+        message: "Erro ao buscar dashboard"
+      });
+    }
+
+    res.json(result[0]);
+
+  });
+
+});
 
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
