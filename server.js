@@ -520,7 +520,7 @@ app.get('/vehicles', async (req, res) => {
   try {
     const { cpf_cnpj } = req.query;
 
-    console.log('Dirceu', cpf_cnpj)
+    return cpf_cnpj
 
     if (!cpf_cnpj) {
       return res.json([]); // 👈 sempre array (não quebra React)
@@ -546,7 +546,7 @@ app.get('/vehicles', async (req, res) => {
     console.log('ERRO /vehicles:', error);
 
     // 👇 nunca quebra o frontend
-    return res.json(['cpf_cnpj']);
+    return res.json([]);
   }
 });
 
