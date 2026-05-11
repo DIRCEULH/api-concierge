@@ -516,40 +516,34 @@ app.patch('/atualizarVisitante/:id', (req, res) => {
 
 
 // Veiculos cadastrados por visitante ou pessoa.
-app.get('/vehicles', async (req, res) => {
-  try {
+app.get('/vehicles', (req, res) => {
+  console.log('QUERY RECEBIDA:', req.query);
 
-      console.log('QUERY RECEBIDA:', req.query);
-    const { cpf_cnpj } = req.query;
+  const { cpf_cnpj } = req.query;
 
-    if (!cpf_cnpj) {
-      return res.json([]); // 👈 sempre array (não quebra React)
+  if (!cpf_cnpj) {
+    return res.json([]);
+  }
+
+  const sql = `
+    SELECT 
+      id,
+      placa,
+      modelo,
+      marca
+    FROM vehicles
+    WHERE cpf_cnpj = ?
+    ORDER BY placa
+  `;
+
+  db.query(sql, [cpf_cnpj], (err, rows) => {
+    if (err) {
+      console.log('ERRO /vehicles:', err);
+      return res.json([]); // nunca quebra o front
     }
 
-    const [rows] = await pool.execute(
-      `
-      SELECT 
-        id,
-        placa,
-        modelo,
-        marca
-      FROM vehicles
-      WHERE cpf_cnpj = ?
-      ORDER BY placa
-      `,
-      [cpf_cnpj]
-    );
-
-    return res.json(rows || []); // 👈 garante array mesmo se null
-
-  } catch (error) {
-    console.log('ERRO /vehicles:', error);
-
-    return res.status(500).json({
-      error: 'Erro interno do servidor',
-      details: error.message
-    });
-  }
+    return res.json(rows || []);
+  });
 });
 
 app.listen(3000, "0.0.0.0", () => {
