@@ -546,7 +546,7 @@ app.get('/vehicles', async (req, res) => {
     console.log('ERRO /vehicles:', error);
 
     // 👇 nunca quebra o frontend
-    return res.json([]);
+    return res.json([cpf_cnpj]);
   }
 });
 
