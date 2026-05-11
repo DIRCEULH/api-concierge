@@ -520,10 +520,8 @@ app.get('/vehicles', async (req, res) => {
   try {
     const { cpf_cnpj } = req.query;
 
-    return cpf_cnpj
-
     if (!cpf_cnpj) {
-      return res.json([]); // 👈 sempre array (não quebra React)
+      return res.json(['Sem cpf']); // 👈 sempre array (não quebra React)
     }
 
     const [rows] = await pool.execute(
