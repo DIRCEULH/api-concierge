@@ -541,10 +541,9 @@ app.get('/vehicles', async (req, res) => {
     return res.json(rows || []); // 👈 garante array mesmo se null
 
   } catch (error) {
-    console.log('ERRO /vehicles:', error);
 
     // 👇 nunca quebra o frontend
-    return res.json([]);
+    return res.json(['ERRO /vehicles:', error]);
   }
 });
 
