@@ -533,7 +533,7 @@ app.get('/vehicles', async (req, res) => {
         placa,
         modelo,
         marca
-      FROM veiculos
+      FROM vehicles
       WHERE cpf_cnpj = ?
       ORDER BY placa
       `,
