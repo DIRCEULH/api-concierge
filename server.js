@@ -521,7 +521,7 @@ app.get('/vehicles', async (req, res) => {
     const { cpf_cnpj } = req.query;
 
     if (!cpf_cnpj) {
-      return res.json(['Sem cpf']); // 👈 sempre array (não quebra React)
+      return res.json([]); // 👈 sempre array (não quebra React)
     }
 
     const [rows] = await pool.execute(
@@ -541,9 +541,12 @@ app.get('/vehicles', async (req, res) => {
     return res.json(rows || []); // 👈 garante array mesmo se null
 
   } catch (error) {
+    console.log('ERRO /vehicles:', error);
 
-    // 👇 nunca quebra o frontend
-    return res.json(['ERRO /vehicles:', error]);
+    return res.status(500).json({
+      error: 'Erro interno do servidor',
+      details: error.message
+    });
   }
 });
 
