@@ -684,7 +684,7 @@ app.get("/debug", (req, res) => {
     DB_HOST: process.env.DB_HOST,
     DB_USER: process.env.DB_USER,
     DB_NAME: process.env.DB_NAME,
-    DB_PASSWORD: process.env.DB_PASSWORD ? "OK (oculto)" : null
+    DB_PASSWORD: process.env.DB_PASSWORD 
   });
 });
 
