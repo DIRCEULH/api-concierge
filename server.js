@@ -684,6 +684,23 @@ app.get("/debug", (req, res) => {
   });
 });
 
+// TEste conexao db
+app.get("/db", (req, res) => {
+  db.query("SELECT 1 AS ok", (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        ok: false,
+        error: err.message
+      });
+    }
+
+    res.json({
+      ok: true,
+      result
+    });
+  });
+});
+
 app.listen(3000, "0.0.0.0", () => {
   console.log("Servidor rodando na porta 3000");
 });
