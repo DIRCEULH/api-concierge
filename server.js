@@ -13,7 +13,7 @@ const db = mysql.createPool({
   port: process.env.DB_PORT,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-   ssl: {
+  ssl: {
     rejectUnauthorized: false
   }
 });
@@ -180,7 +180,7 @@ app.post("/login", (req, res) => {
 
     if (err) {
       return res.status(500).json({ message: "Erro no servidor" });
-      
+
     }
 
     if (result.length > 0) {
@@ -635,30 +635,28 @@ app.post("/register-vehicle", (req, res) => {
 app.get("/dashboard", (req, res) => {
 
   const sql = `
-    SELECT
-      COUNT(*) as total,
+              SELECT
+              COUNT(*) AS total,
 
-      SUM(
-        CASE
-          WHEN data_saida IS NULL
-          OR data_saida = ''
-          THEN 1
-          ELSE 0
-        END
-      ) as dentro,
+              SUM(
+                  CASE
+                      WHEN data_saida IS NULL
+                      THEN 1
+                      ELSE 0
+                  END
+              ) AS dentro,
 
-      SUM(
-        CASE
-          WHEN data_saida IS NOT NULL
-          AND data_saida <> ''
-          THEN 1
-          ELSE 0
-        END
-      ) as sairam
+              SUM(
+                  CASE
+                      WHEN data_saida IS NOT NULL
+                      THEN 1
+                      ELSE 0
+                  END
+              ) AS sairam
 
-    FROM visitors
+              FROM visitors
 
-    WHERE DATE(data_entrada) = CURDATE()
+              WHERE DATE(data_entrada) = CURDATE()
   `;
 
   db.query(sql, (err, result) => {
