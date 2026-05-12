@@ -8,11 +8,14 @@ app.use(cors());
 app.use(express.json());
 
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const db = mysql.createConnection({
-  host: "mysql-359982e2-dirceulh-0853.a.aivencloud.com",
-  user: "avnadmin",
-  password: "AVNS_8zlrJcdbnGNM7117iBY",
-  database: "defaultdb"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 
