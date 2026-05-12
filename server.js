@@ -14,12 +14,13 @@ const db = mysql.createPool({
   database: process.env.DB_NAME
 });
 
-
-db.connect((err) => {
+// teste opcional
+db.getConnection((err, connection) => {
   if (err) {
     console.log("Erro ao conectar no banco:", err);
   } else {
     console.log("Conectado ao MySQL");
+    connection.release();
   }
 });
 
