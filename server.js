@@ -14,14 +14,6 @@ const db = mysql.createPool({
   database: process.env.DB_NAME
 });
 
-app.get("/debug-env", (req, res) => {
-  res.json({
-    DB_HOST: process.env.DB_HOST,
-    DB_USER: process.env.DB_USER,
-    DB_NAME: process.env.DB_NAME,
-    DB_PASSWORD: process.env.DB_PASSWORD ? "OK (oculto)" : null
-  });
-});
 
 // teste opcional
 db.getConnection((err, connection) => {
@@ -679,6 +671,16 @@ app.get("/dashboard", (req, res) => {
 
   });
 
+});
+
+//testar conexao
+app.get("/debug-env", (req, res) => {
+  res.json({
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_NAME: process.env.DB_NAME,
+    DB_PASSWORD: process.env.DB_PASSWORD ? "OK (oculto)" : null
+  });
 });
 
 app.listen(3000, "0.0.0.0", () => {
