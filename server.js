@@ -14,6 +14,8 @@ const db = mysql.createPool({
   database: process.env.DB_NAME
 });
 
+console.log("DB_HOST:", process.env.DB_HOST);
+
 // teste opcional
 db.getConnection((err, connection) => {
   if (err) {
