@@ -528,22 +528,28 @@ app.get('/vehicles', (req, res) => {
 
   const { cpf_cnpj } = req.query;
 
-  if (!cpf_cnpj) {
-    return res.json([]);
-  }
-
-  const sql = `
+  let sql = `
     SELECT 
       id,
       placa,
       modelo,
-      marca
+      marca,
+      cor,
+      tipo_veiculo,
+      cpf_cnpj
     FROM vehicles
-    WHERE cpf_cnpj = ?
-    ORDER BY placa
   `;
 
-  db.query(sql, [cpf_cnpj], (err, rows) => {
+  const params = [];
+
+  if (cpf_cnpj) {
+    sql += ` WHERE cpf_cnpj = ?`;
+    params.push(cpf_cnpj);
+  }
+
+  sql += ` ORDER BY placa`;
+
+  db.query(sql, params, (err, rows) => {
     if (err) {
       console.log('ERRO /vehicles:', err);
       return res.json([]); // nunca quebra o front
