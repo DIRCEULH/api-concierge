@@ -1,6 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
+require('dotenv').config();
 
 const app = express();
 
@@ -649,7 +650,7 @@ app.post("/register-vehicle", (req, res) => {
 });
 //Graficos
 app.get("/dashboard", (req, res) => {
-  const { data_atual } = req.query;
+  const {data_atual} = req.query;
   const params = [];
 
   let sql = `
@@ -664,11 +665,15 @@ app.get("/dashboard", (req, res) => {
     const formattedDate = formatToMySQLDate(data_atual);
 
     if (!formattedDate) {
-      return res.status(400).json({ message: 'Data inválida' });
+      return res.status(400).json({
+        message: "Data inválida"
+      });
     }
 
-    sql += ` WHERE data_entrada BETWEEN ? AND ?`;
-    params.push(`${formattedDate} 00:00:00`, `${formattedDate} 23:59:59`);
+    sql += ` WHERE DATE(data_entrada) = ?`;
+    params.push(formattedDate);
+
+    console.log(formattedDate);
   } else {
     sql += ` WHERE DATE(data_entrada) = CURDATE()`;
   }
@@ -676,12 +681,13 @@ app.get("/dashboard", (req, res) => {
   db.query(sql, params, (err, result) => {
     if (err) {
       console.log(err);
+
       return res.status(500).json({
         message: "Erro ao buscar dashboard"
       });
     }
 
-    res.json(result[0], sql);
+    res.json(result[0]);
   });
 });
 
