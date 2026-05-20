@@ -650,7 +650,7 @@ app.post("/register-vehicle", (req, res) => {
 });
 //Graficos
 app.get("/dashboard", (req, res) => {
-  const data_atual = req.query;
+  const { data_atual} = req.query;
   const params = [];
 
   let sql = `
@@ -687,7 +687,7 @@ app.get("/dashboard", (req, res) => {
       });
     }
 
-    res.json(data_atual);
+    res.json(result[0]);
   });
 });
 
