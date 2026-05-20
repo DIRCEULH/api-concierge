@@ -687,7 +687,7 @@ app.get("/dashboard", (req, res) => {
       });
     }
 
-    res.json(data_atual);
+    res.json({data_atual:data_atual});
   });
 });
 
