@@ -675,11 +675,7 @@ app.get("/dashboard", (req, res) => {
       });
     }
 
-    res.json({
-      sql,
-      params,
-      data: result[0]
-    });
+    res.json(result[0]);
   });
 });
 
