@@ -650,7 +650,7 @@ app.post("/register-vehicle", (req, res) => {
 });
 //Graficos
 app.get("/dashboard", (req, res) => {
-  const { data_atual} = req.query;
+  const { data_entrada } = req.query;
   const params = [];
 
   let sql = `
@@ -661,8 +661,8 @@ app.get("/dashboard", (req, res) => {
     FROM visitors
   `;
 
-  if (data_atual) {
-    const formattedDate = formatToMySQLDate(data_atual);
+  if (data_entrada) {
+    const formattedDate = formatToMySQLDate(data_entrada);
 
     if (!formattedDate) {
       return res.status(400).json({
@@ -687,7 +687,7 @@ app.get("/dashboard", (req, res) => {
       });
     }
 
-    res.json({data_atual:data_atual});
+    res.json(result[0]);
   });
 });
 
