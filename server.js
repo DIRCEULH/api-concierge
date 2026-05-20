@@ -661,8 +661,8 @@ app.get("/dashboard", (req, res) => {
       return res.status(400).json({ message: 'Data inválida' });
     }
 
-    sql += ` WHERE DATE(data_entrada) = ?`;
-    params.push(formattedDate);
+    sql += ` WHERE data_entrada BETWEEN ? AND ?`;
+    params.push(`${formattedDate} 00:00:00`, `${formattedDate} 23:59:59`);
   } else {
     sql += ` WHERE DATE(data_entrada) = CURDATE()`;
   }
