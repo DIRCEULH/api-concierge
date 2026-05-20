@@ -638,12 +638,8 @@ app.get("/dashboard", (req, res) => {
   let sql = `
     SELECT
       COUNT(*) AS total,
-      SUM(
-        CASE WHEN data_saida IS NULL THEN 1 ELSE 0 END
-      ) AS dentro,
-      SUM(
-        CASE WHEN data_saida IS NOT NULL THEN 1 ELSE 0 END
-      ) AS sairam
+      COALESCE(SUM(CASE WHEN data_saida IS NULL THEN 1 ELSE 0 END), 0) AS dentro,
+      COALESCE(SUM(CASE WHEN data_saida IS NOT NULL THEN 1 ELSE 0 END), 0) AS sairam
     FROM visitors
   `;
 
