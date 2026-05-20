@@ -215,8 +215,14 @@ app.get("/visitantes", (req, res) => {
 
   // filtra por data ignorando hora
   if (data_atual) {
+    const formattedDate = formatToMySQLDate(data_atual);
+
+    if (!formattedDate) {
+      return res.status(400).json({ message: 'Data inválida' });
+    }
+
     sql += ` AND DATE(v.data_registro) = ?`;
-    params.push(data_atual);
+    params.push(formattedDate);
   }
 
   // filtra por local
