@@ -33,16 +33,13 @@ function formatToMySQLDateTime(dataBR) {
   if (!dataBR) return null;
 
   try {
-    const [datePart, timePart] = dataBR.split(' ');
-
-    if (!datePart || !timePart) return null;
-
+    const [datePart, timePart = '00:00'] = dataBR.split(' ');
     const [day, month, year] = datePart.split('/');
     const [hour, minute] = timePart.split(':');
 
-    if (!day || !month || !year || !hour || !minute) return null;
+    if (!day || !month || !year || hour === undefined || minute === undefined) return null;
 
-    return `${year}-${month}-${day} ${hour}:${minute}:00`;
+    return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')} ${hour.padStart(2, '0')}:${minute.padStart(2, '0')}:00`;
   } catch (e) {
     console.error('Erro ao converter data:', dataBR);
     return null;
@@ -54,16 +51,12 @@ function formatToMySQLDate(dataBR) {
   if (!dataBR) return null;
 
   try {
-    const [datePart, timePart] = dataBR.split(' ');
-
-    if (!datePart || !timePart) return null;
-
+    const [datePart] = dataBR.split(' ');
     const [day, month, year] = datePart.split('/');
-    const [hour, minute] = timePart.split(':');
 
-    if (!day || !month || !year || !hour || !minute) return null;
+    if (!day || !month || !year) return null;
 
-    return `${year}-${month}-${day}`;
+    return `${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   } catch (e) {
     console.error('Erro ao converter data:', dataBR);
     return null;
@@ -639,47 +632,44 @@ app.post("/register-vehicle", (req, res) => {
 });
 //Graficos
 app.get("/dashboard", (req, res) => {
+  const { data_atual } = req.query;
+  const params = [];
 
-  const sql = `
-              SELECT
-              COUNT(*) AS total,
-
-              SUM(
-                  CASE
-                      WHEN data_saida IS NULL
-                      THEN 1
-                      ELSE 0
-                  END
-              ) AS dentro,
-
-              SUM(
-                  CASE
-                      WHEN data_saida IS NOT NULL
-                      THEN 1
-                      ELSE 0
-                  END
-              ) AS sairam
-
-              FROM visitors
-
-              WHERE DATE(data_entrada) = CURDATE()
+  let sql = `
+    SELECT
+      COUNT(*) AS total,
+      SUM(
+        CASE WHEN data_saida IS NULL THEN 1 ELSE 0 END
+      ) AS dentro,
+      SUM(
+        CASE WHEN data_saida IS NOT NULL THEN 1 ELSE 0 END
+      ) AS sairam
+    FROM visitors
   `;
 
-  db.query(sql, (err, result) => {
+  if (data_atual) {
+    const formattedDate = formatToMySQLDate(data_atual);
 
+    if (!formattedDate) {
+      return res.status(400).json({ message: 'Data inválida' });
+    }
+
+    sql += ` WHERE DATE(data_entrada) = ?`;
+    params.push(formattedDate);
+  } else {
+    sql += ` WHERE DATE(data_entrada) = CURDATE()`;
+  }
+
+  db.query(sql, params, (err, result) => {
     if (err) {
-
       console.log(err);
-
       return res.status(500).json({
         message: "Erro ao buscar dashboard"
       });
     }
 
     res.json(result[0]);
-
   });
-
 });
 
 // teste conexao dados
