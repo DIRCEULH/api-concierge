@@ -52,7 +52,18 @@ function formatToMySQLDate(dataBR) {
 
   try {
     const [datePart] = dataBR.split(' ');
-    const [day, month, year] = datePart.split('/');
+
+    if (!datePart) return null;
+
+    let day;
+    let month;
+    let year;
+
+    if (datePart.includes('/')) {
+      [day, month, year] = datePart.split('/');
+    } else if (datePart.includes('-')) {
+      [year, month, day] = datePart.split('-');
+    }
 
     if (!day || !month || !year) return null;
 
